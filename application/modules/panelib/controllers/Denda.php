@@ -1,0 +1,162 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Denda extends CI_Controller
+{
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Denda_model');
+        $this->load->library('form_validation');
+    }
+
+    public function index()
+    {
+        $q = urldecode($this->input->get('q', TRUE));
+        $start = intval($this->input->get('start'));
+        
+        if ($q <> '') {
+            $config['base_url'] = base_url() . 'denda/index.html?q=' . urlencode($q);
+            $config['first_url'] = base_url() . 'denda/index.html?q=' . urlencode($q);
+        } else {
+            $config['base_url'] = base_url() . 'denda/index.html';
+            $config['first_url'] = base_url() . 'denda/index.html';
+        }
+
+        $config['per_page'] = 10;
+        $config['page_query_string'] = TRUE;
+        $config['total_rows'] = $this->Denda_model->total_rows($q);
+        $denda = $this->Denda_model->get_limit_data($config['per_page'], $start, $q);
+
+        $this->load->library('pagination');
+        $this->pagination->initialize($config);
+
+        $data = array(
+            'denda_data' => $denda,
+            'q' => $q,
+            'pagination' => $this->pagination->create_links(),
+            'total_rows' => $config['total_rows'],
+            'start' => $start,
+        );
+            $data['aktif']          ='Master';
+            $data['title']          ='Member Panel';
+            $data['judul_menu']     ='Master';
+            $data['sub_judul']      ='Denda';
+            $data['content']        ='denda/denda_list';
+            $this->load->view('dashboard', $data);
+    }
+
+    /*public function read($id) 
+    {
+        $row = $this->Denda_model->get_by_id($id);
+        if ($row) {
+            $data = array(
+		'id_denda' => $row->id_denda,
+		'denda' => $row->denda,
+	    );
+            $this->load->view('denda/denda_read', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('denda'));
+        }
+    }
+
+    public function create() 
+    {
+        $data = array(
+            'button' => 'Create',
+            'action' => site_url('denda/create_action'),
+	    'id_denda' => set_value('id_denda'),
+	    'denda' => set_value('denda'),
+	);
+        $this->load->view('denda/denda_form', $data);
+    }
+    
+    public function create_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->create();
+        } else {
+            $data = array(
+		'denda' => $this->input->post('denda',TRUE),
+	    );
+
+            $this->Denda_model->insert($data);
+            $this->session->set_flashdata('message', 'Create Record Success');
+            redirect(site_url('denda'));
+        }
+    }*/
+    
+    public function update($id) 
+    {
+        $row = $this->Denda_model->get_by_id($id);
+
+        if ($row) {
+            $data = array(
+                'button' => 'Update',
+                'action' => site_url('panelib/denda/update_action'),
+		'id_denda' => set_value('id_denda', $row->id_denda),
+		'denda' => set_value('denda', $row->denda),
+	    );  
+            $data['aktif']          ='Master';
+            $data['title']          ='Member Panel';
+            $data['judul_menu']     ='Master';
+            $data['sub_judul']      ='Ubah Denda';
+            $data['content']        ='denda/denda_form';
+            $this->load->view('dashboard', $data);
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('panelib/denda'));
+        }
+    }
+    
+    public function update_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->update($this->input->post('id_denda', TRUE));
+        } else {
+            $data = array(
+		'denda' => $this->input->post('denda',TRUE),
+	    );
+
+            $this->Denda_model->update($this->input->post('id_denda', TRUE), $data);
+            $this->session->set_flashdata('message', 'Update Success');
+            redirect(site_url('panelib/denda'));
+        }
+    }
+    
+    /*public function delete($id) 
+    {
+        $row = $this->Denda_model->get_by_id($id);
+
+        if ($row) {
+            $this->Denda_model->delete($id);
+            $this->session->set_flashdata('message', 'Delete Record Success');
+            redirect(site_url('denda'));
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('denda'));
+        }
+    }*/
+
+    public function _rules() 
+    {
+	$this->form_validation->set_rules('denda', 'denda', 'trim|required');
+
+	$this->form_validation->set_rules('id_denda', 'id_denda', 'trim');
+	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+}
+
+/* End of file Denda.php */
+/* Location: ./application/controllers/Denda.php */
+/* Please DO NOT modify this information : */
+/* Generated by Harviacode Codeigniter CRUD Generator 2017-12-16 16:48:53 */
+/* http://harviacode.com */
